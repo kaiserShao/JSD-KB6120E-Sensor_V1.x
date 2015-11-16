@@ -31,7 +31,7 @@ static	FP32	_CV_NTC10K( uint16_t ADx )
 	}
 	else
 	{
-		FP32	RxDivR0 = (FP32)( 4096u - ADx ) / (FP32)(ADx);
+		FP32	RxDivR0 = (FP32)(ADx ) / (FP32)( 4096u - ADx);//2015.11.16--6120AÐÂ°å×Ó
 		Tx = B / ( logf( RxDivR0 ) + ( B / ( K + T0 ))) - K;
 	}
 	

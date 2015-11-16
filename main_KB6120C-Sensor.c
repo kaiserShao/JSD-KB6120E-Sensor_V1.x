@@ -21,8 +21,8 @@ static	void	Fan1_Exec( void )
 	FP32	Temp = get_NTC1_Temp();	//电源
 	
 	//	高于40℃开，低于40℃关。
-	if ( Temp > 40.5f ){  OutState = true;  }
-	if ( Temp < 39.5f ){  OutState = false; }
+	if ( Temp > 40.5f ){	OutState = true;	}
+	if ( Temp < 39.5f ){	OutState = false; }
 	
 	Fan1_OutCmd( OutState );
 }
@@ -41,7 +41,7 @@ static	void	Heater_Exec( void )
 	{
 		iRetry = 0u;
 
-		usRegInputBuf[8]  = Temp16S;
+		usRegInputBuf[8]	= Temp16S;
 
 		Temp_Set = (int16_t)usRegHoldingBuf[8];			//	设定温度
 
@@ -83,7 +83,7 @@ static	void	Heater_Exec( void )
 ///////////////////////////////////////////////////
 //	恒温箱温度控制
 ///////////////////////////////////////////////////
-uint16_t volatile fan_shut_delay;
+
 uint16_t	iRetry = 0u;
 static	void	HCBox_Exec( void )
 {	
@@ -91,7 +91,7 @@ static	void	HCBox_Exec( void )
 	if ( DS18B20_4_Read( &Temp16S ))
 	{
 		iRetry = 0u;
-		usRegInputBuf[5]  = Temp16S;
+		usRegInputBuf[5]	= Temp16S;
 	}
 	else
 	{
@@ -114,10 +114,10 @@ static	void	Slice0_Exec( void )
 	Protect_EN = MonitorTickTimeout();	//	监视定时器超时，保护性的关闭所有输出
 	HCBoxControl();
 	Output_EN = Read_BitN( ucRegCoilsBuf, 15 ) |
-                Read_BitN( ucRegCoilsBuf, 20 ) | 
-                Read_BitN( ucRegCoilsBuf, 25 ) | 
-                Read_BitN( ucRegCoilsBuf, 30 ) | 
-                Read_BitN( ucRegCoilsBuf, 35 ) ;	// 允许输出?
+							Read_BitN( ucRegCoilsBuf, 20 ) | 
+							Read_BitN( ucRegCoilsBuf, 25 ) | 
+							Read_BitN( ucRegCoilsBuf, 30 ) | 
+							Read_BitN( ucRegCoilsBuf, 35 ) ;	// 允许输出?
 	PowerAIR_OutCmd( Output_EN );
 	
 	//转子大气AIR
@@ -197,7 +197,7 @@ static	void	Slice1_Exec( void )
 
 	if ( DS18B20_1_Read( &Temp16S ))
 	{
-        usRegInputBuf[2]  = Temp16S;	//	环境温度
+		usRegInputBuf[2]	= Temp16S;	//	环境温度
 	}
 	if ( DS18B20_3_Read( &Temp16S ))
 	{	
@@ -232,7 +232,7 @@ static	void	Slice2_Exec( void )
 ///////////////////////////////////////////////////
 //	转换/读取 AD7705 通道 CH0
 ///////////////////////////////////////////////////
-void	Update_CH0(void )
+void	Update_CH0( void )
 {
 	uint32_t	Sum7705_CH0[CS7705_Max];
 	uint8_t		isExist7705[CS7705_Max];
@@ -253,7 +253,6 @@ void	Update_CH0(void )
 		///////////////////////////////////////////////////
 		Slice0_Exec();	//	时间片段0，空余时间尽量快的执行
 		///////////////////////////////////////////////////
-
 		for ( i = 0u; i < CS7705_Max; ++i )
 		{
 			if ( isExist7705[i] )
@@ -333,14 +332,14 @@ static void KB6120E_ConfigSelect( void )
 	{
 		if ( isExist7705[i] )
 		{
-			 Set_BitN( ucRegDiscBuf, 15 + i * 5  );
+			 Set_BitN( ucRegDiscBuf, 15 + i * 5	);
 		}
 	}
-	if	( Read_BitN(ucRegDiscBuf, 15)  && 
-        (!Read_BitN(ucRegDiscBuf, 20)) && 
-        (!Read_BitN(ucRegDiscBuf, 25)) && 
-        (!Read_BitN(ucRegDiscBuf, 30)) && 
-        (!Read_BitN(ucRegDiscBuf, 35)) )
+	if( Read_BitN(ucRegDiscBuf, 15)	&& 
+		(!Read_BitN(ucRegDiscBuf, 20)) && 
+		(!Read_BitN(ucRegDiscBuf, 25)) && 
+		(!Read_BitN(ucRegDiscBuf, 30)) && 
+		(!Read_BitN(ucRegDiscBuf, 35)) )
 		Set_BitN( ucRegDiscBuf, 10 );
 }
 		
@@ -355,7 +354,7 @@ int32_t	main( void )
 	for ( i = 0; i < 40u; ++i )
 	{
 		usRegHoldingBuf[i] = 0u;
-		usRegInputBuf[i]   = 0u;
+		usRegInputBuf[i]	 = 0u;
 	}
 	for ( i = 0; i < (( 40u + 7 ) / 8 ); ++i )
 	{
@@ -365,7 +364,7 @@ int32_t	main( void )
 
 	DS18B20_1_Read( &Temp16S );		//	读18B20, 跳过 0x0550 环境温度
 	
-	if( DS18B20_2_Read( &Temp16S  ))  
+	if( DS18B20_2_Read( &Temp16S	))	
 		Set_BitN( ucRegDiscBuf, 8 );	//	加热器温度
 	
 	DS18B20_3_Read( &Temp16S );		//	计前温度
@@ -396,4 +395,4 @@ int32_t	main( void )
 		//	ClearWDT();
 	}
 }
-/********  (C) COPYRIGHT 2015 青岛金仕达电子科技有限公司  **** End Of File ****/
+/********	(C) COPYRIGHT 2015 青岛金仕达电子科技有限公司	**** End Of File ****/

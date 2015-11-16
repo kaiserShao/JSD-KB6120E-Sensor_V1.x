@@ -42,8 +42,8 @@ void	delay( uint16_t ms )
 #define	_OW_Pin_4_Input()		(PinBB( GPIOA->IDR, 15U ))
 #define	_OW_Pin_4_Output(_b)	(PinBB( GPIOA->ODR, 15U )=(_b))
 
-__svc_indirect(0)  BOOL	_SVCCall_Reset( BOOL (*)( void ));
-__svc_indirect(0)  BOOL	_SVCCall_Slot ( BOOL (*)( BOOL ), BOOL Slot );
+__svc_indirect(0)	BOOL	_SVCCall_Reset( BOOL (*)( void ));
+__svc_indirect(0)	BOOL	_SVCCall_Slot ( BOOL (*)( BOOL ), BOOL Slot );
 
 BOOL	OW_1_Init( void )
 {
@@ -393,7 +393,7 @@ void	bus_SPI1xPortInit( void )
  	MODIFY_REG( GPIOB->CRL, 0x00FFF000u, 0x00B4B000u );
 
 	/* Enable SPI in Master Mode, CPOL=1, CPHA=1. */
-	SPI1->CR1 = SPI_CR1_SSI  | SPI_CR1_SSM  | SPI_CR1_SPE  | SPI_CR1_BR |
+	SPI1->CR1 = SPI_CR1_SSI	| SPI_CR1_SSM	| SPI_CR1_SPE	| SPI_CR1_BR |
 				SPI_CR1_MSTR | SPI_CR1_CPHA | SPI_CR1_CPOL;
 	SPI1->CR2 = 0x0000u;
 }
@@ -417,13 +417,13 @@ volatile	uint16_t	ADCResultBuf[10][4];
 static	void	STM32_ADC_Init( void )
 {
 	//	DMA1 channel1 configuration
-	SET_BIT( RCC->AHBENR,  RCC_AHBENR_DMA1EN );
+	SET_BIT( RCC->AHBENR,	RCC_AHBENR_DMA1EN );
 	//	DMA模块禁能, 重新配置
-	DMA1_Channel1->CCR   = 0u;
-	DMA1_Channel1->CCR   = DMA_CCR1_PL | DMA_CCR1_MINC | DMA_CCR1_PSIZE_0 | DMA_CCR1_MSIZE_0 | DMA_CCR1_CIRC;
+	DMA1_Channel1->CCR	 = 0u;
+	DMA1_Channel1->CCR	 = DMA_CCR1_PL | DMA_CCR1_MINC | DMA_CCR1_PSIZE_0 | DMA_CCR1_MSIZE_0 | DMA_CCR1_CIRC;
 	//	设置DMA外设地址, 内存地址, 传输数量
-	DMA1_Channel1->CPAR  = (uint32_t)&ADC1->DR;				
-	DMA1_Channel1->CMAR  = (uint32_t)ADCResultBuf;			
+	DMA1_Channel1->CPAR	= (uint32_t)&ADC1->DR;				
+	DMA1_Channel1->CMAR	= (uint32_t)ADCResultBuf;			
 	DMA1_Channel1->CNDTR = ( sizeof(ADCResultBuf)/sizeof(ADCResultBuf[0][0]));
 	SET_BIT( DMA1_Channel1->CCR, DMA_CCR1_EN );				//	DMA通道使能
 
@@ -453,25 +453,25 @@ static	void	STM32_ADC_Init( void )
 	#define	ADC1_SMPR2_BASE		0	// R2 起始编号
 	#define	ADC1_SMPR_WIDTH		3	// 每组设置3位
 
-	ADC1->SMPR2 =	(( ADC1_SMP_239p5_C ) << ( ADC1_SMPR_WIDTH * (  0 - ADC1_SMPR2_BASE )))	//	通道0
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * (  1 - ADC1_SMPR2_BASE )))	//	通道1
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * (  2 - ADC1_SMPR2_BASE )))	//	通道2
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * (  3 - ADC1_SMPR2_BASE )))	//	通道3
-				|	(( ADC1_SMP_239p5_C ) << ( ADC1_SMPR_WIDTH * (  4 - ADC1_SMPR2_BASE )))	//	通道4
-				|	(( ADC1_SMP_239p5_C ) << ( ADC1_SMPR_WIDTH * (  5 - ADC1_SMPR2_BASE )))	//	通道5
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * (  6 - ADC1_SMPR2_BASE )))	//	通道6
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * (  7 - ADC1_SMPR2_BASE )))	//	通道7
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * (  8 - ADC1_SMPR2_BASE )))	//	通道8
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * (  9 - ADC1_SMPR2_BASE )))	//	通道9
+	ADC1->SMPR2 =	(( ADC1_SMP_239p5_C ) << ( ADC1_SMPR_WIDTH * (	0 - ADC1_SMPR2_BASE )))	//	通道0
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * (	1 - ADC1_SMPR2_BASE )))	//	通道1
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * (	2 - ADC1_SMPR2_BASE )))	//	通道2
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * (	3 - ADC1_SMPR2_BASE )))	//	通道3
+				|	(( ADC1_SMP_239p5_C ) << ( ADC1_SMPR_WIDTH * (	4 - ADC1_SMPR2_BASE )))	//	通道4
+				|	(( ADC1_SMP_239p5_C ) << ( ADC1_SMPR_WIDTH * (	5 - ADC1_SMPR2_BASE )))	//	通道5
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * (	6 - ADC1_SMPR2_BASE )))	//	通道6
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * (	7 - ADC1_SMPR2_BASE )))	//	通道7
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * (	8 - ADC1_SMPR2_BASE )))	//	通道8
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * (	9 - ADC1_SMPR2_BASE )))	//	通道9
 				;
-	ADC1->SMPR1 =	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * ( 10 - ADC1_SMPR1_BASE )))	//	通道10
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * ( 11 - ADC1_SMPR1_BASE )))	//	通道11
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * ( 12 - ADC1_SMPR1_BASE )))	//	通道12
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * ( 13 - ADC1_SMPR1_BASE )))	//	通道13
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * ( 14 - ADC1_SMPR1_BASE )))	//	通道14
-				|	(( ADC1_SMP_1p5_C   ) << ( ADC1_SMPR_WIDTH * ( 15 - ADC1_SMPR1_BASE )))	//	通道15
-				|	(( ADC1_SMP_41p5_C  ) << ( ADC1_SMPR_WIDTH * ( 16 - ADC1_SMPR1_BASE )))	//	通道16(内部温度)
-				|	(( ADC1_SMP_41p5_C  ) << ( ADC1_SMPR_WIDTH * ( 17 - ADC1_SMPR1_BASE )))	//	通道17(内部基准)
+	ADC1->SMPR1 =	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * ( 10 - ADC1_SMPR1_BASE )))	//	通道10
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * ( 11 - ADC1_SMPR1_BASE )))	//	通道11
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * ( 12 - ADC1_SMPR1_BASE )))	//	通道12
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * ( 13 - ADC1_SMPR1_BASE )))	//	通道13
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * ( 14 - ADC1_SMPR1_BASE )))	//	通道14
+				|	(( ADC1_SMP_1p5_C	 ) << ( ADC1_SMPR_WIDTH * ( 15 - ADC1_SMPR1_BASE )))	//	通道15
+				|	(( ADC1_SMP_41p5_C	) << ( ADC1_SMPR_WIDTH * ( 16 - ADC1_SMPR1_BASE )))	//	通道16(内部温度)
+				|	(( ADC1_SMP_41p5_C	) << ( ADC1_SMPR_WIDTH * ( 17 - ADC1_SMPR1_BASE )))	//	通道17(内部基准)
 				;
 
 	//	配置规则转换序列（序列编号从1开始）
@@ -480,24 +480,24 @@ static	void	STM32_ADC_Init( void )
 	#define	ADC1_SQR3_BASE		1	// R3 起始编号
 	#define	ADC1_SQR_WIDTH		5	// 每组设置5位
 
-	ADC1->SQR3  =	(( 17 )	<< ( ADC1_SQR_WIDTH * (  1 - ADC1_SQR3_BASE )))	//	序列1
-				|	(( 16 )	<< ( ADC1_SQR_WIDTH * (  2 - ADC1_SQR3_BASE )))	//	序列2
-				|	((  4 ) << ( ADC1_SQR_WIDTH * (  3 - ADC1_SQR3_BASE )))	//	序列3
-				|	((  5 ) << ( ADC1_SQR_WIDTH * (  4 - ADC1_SQR3_BASE )))	//	序列4
-				|	((  0 ) << ( ADC1_SQR_WIDTH * (  5 - ADC1_SQR3_BASE )))	//	序列5
-				|	((  0 ) << ( ADC1_SQR_WIDTH * (  6 - ADC1_SQR3_BASE )))	//	序列6
+	ADC1->SQR3	=	(( 17 )	<< ( ADC1_SQR_WIDTH * (	1 - ADC1_SQR3_BASE )))	//	序列1
+				|	(( 16 )	<< ( ADC1_SQR_WIDTH * (	2 - ADC1_SQR3_BASE )))	//	序列2
+				|	((	4 ) << ( ADC1_SQR_WIDTH * (	3 - ADC1_SQR3_BASE )))	//	序列3
+				|	((	5 ) << ( ADC1_SQR_WIDTH * (	4 - ADC1_SQR3_BASE )))	//	序列4
+				|	((	0 ) << ( ADC1_SQR_WIDTH * (	5 - ADC1_SQR3_BASE )))	//	序列5
+				|	((	0 ) << ( ADC1_SQR_WIDTH * (	6 - ADC1_SQR3_BASE )))	//	序列6
 				;
-	ADC1->SQR2  =	((  0 ) << ( ADC1_SQR_WIDTH * (  7 - ADC1_SQR2_BASE )))	//	序列7
-				|	((  0 ) << ( ADC1_SQR_WIDTH * (  8 - ADC1_SQR2_BASE )))	//	序列8
-				|	((  0 ) << ( ADC1_SQR_WIDTH * (  9 - ADC1_SQR2_BASE )))	//	序列9
-				|	((  0 ) << ( ADC1_SQR_WIDTH * ( 10 - ADC1_SQR2_BASE )))	//	序列10
-				|	((  0 ) << ( ADC1_SQR_WIDTH * ( 11 - ADC1_SQR2_BASE )))	//	序列11
-				|	((  0 ) << ( ADC1_SQR_WIDTH * ( 12 - ADC1_SQR2_BASE )))	//	序列12
+	ADC1->SQR2	=	((	0 ) << ( ADC1_SQR_WIDTH * (	7 - ADC1_SQR2_BASE )))	//	序列7
+				|	((	0 ) << ( ADC1_SQR_WIDTH * (	8 - ADC1_SQR2_BASE )))	//	序列8
+				|	((	0 ) << ( ADC1_SQR_WIDTH * (	9 - ADC1_SQR2_BASE )))	//	序列9
+				|	((	0 ) << ( ADC1_SQR_WIDTH * ( 10 - ADC1_SQR2_BASE )))	//	序列10
+				|	((	0 ) << ( ADC1_SQR_WIDTH * ( 11 - ADC1_SQR2_BASE )))	//	序列11
+				|	((	0 ) << ( ADC1_SQR_WIDTH * ( 12 - ADC1_SQR2_BASE )))	//	序列12
 				;
-	ADC1->SQR1  =	((  0 ) << ( ADC1_SQR_WIDTH * ( 13 - ADC1_SQR1_BASE )))	//	序列13
-				|	((  0 ) << ( ADC1_SQR_WIDTH * ( 14 - ADC1_SQR1_BASE )))	//	序列14
-				|	((  0 ) << ( ADC1_SQR_WIDTH * ( 15 - ADC1_SQR1_BASE )))	//	序列15
-				|	((  0 ) << ( ADC1_SQR_WIDTH * ( 16 - ADC1_SQR1_BASE )))	//	序列16
+	ADC1->SQR1	=	((	0 ) << ( ADC1_SQR_WIDTH * ( 13 - ADC1_SQR1_BASE )))	//	序列13
+				|	((	0 ) << ( ADC1_SQR_WIDTH * ( 14 - ADC1_SQR1_BASE )))	//	序列14
+				|	((	0 ) << ( ADC1_SQR_WIDTH * ( 15 - ADC1_SQR1_BASE )))	//	序列15
+				|	((	0 ) << ( ADC1_SQR_WIDTH * ( 16 - ADC1_SQR1_BASE )))	//	序列16
 				|	((4 -1) << ( ADC1_SQR_WIDTH * ( 17 - ADC1_SQR1_BASE )))	//	长度(0表示1次)
 				;
 
@@ -507,7 +507,7 @@ static	void	STM32_ADC_Init( void )
 	while ( READ_BIT( ADC1->CR2, ADC_CR2_RSTCAL ));				//	Check the end of ADC1 reset calibration register
 	SET_BIT( ADC1->CR2, ADC_CR2_CAL );							//	Start ADC1 calibration
 	while ( READ_BIT( ADC1->CR2, ADC_CR2_CAL ));				//	Check the end of ADC1 calibration
-	SET_BIT( ADC1->CR2, ADC_CR2_SWSTART | ADC_CR2_EXTTRIG );  	//	Start ADC1 Software Conversion
+	SET_BIT( ADC1->CR2, ADC_CR2_SWSTART | ADC_CR2_EXTTRIG );		//	Start ADC1 Software Conversion
 }
 
 uint16_t	STM32_ADC1_Readout( uint8_t Channel )
@@ -533,20 +533,28 @@ static	void	TIM1_Init( void )
 
 	SET_BIT( RCC->APB2ENR, RCC_APB2ENR_TIM1EN );
 
-	TIMx->SMCR	= 
-// 					TIM_SMCR_ETP| 	//上升下降沿
-// 					TIM_SMCR_ETF_0|	//滤波
- 					TIM_SMCR_ETPS_0;//预分频器
-													
-	
+	TIMx->SMCR	= TIM_SMCR_ETP 
+				| TIM_SMCR_ETF_3
+				| TIM_SMCR_ETPS_0
+				;
+	GPIOA->CRH&=0XFFF0FFFF; //PA12 清除之前设置   
+	GPIOA->CRH|=0X00080000; //PA12 上拉下拉输入    
+// 	GPIOA->ODR&=0XEFFF;	
 	/* Enable the TIM Counter */
-	SET_BIT( TIMx->SMCR, TIM_SMCR_ECE );//外部时钟2
- 	SET_BIT( TIMx->CR1, TIM_CR1_CEN );//启动计数器
+	SET_BIT( TIMx->SMCR, TIM_SMCR_ECE );
+ 	SET_BIT( TIMx->CR1, TIM_CR1_CEN );
 
-		//	配置管脚：PA.12 浮空输入
-	SET_BIT( RCC->APB2ENR, RCC_APB2ENR_IOPAEN );
- 	MODIFY_REG( GPIOA->CRH, 0x000F0000u, 0x00040000u );
+	// 	//	使用 TI2
+	//  	CLEAR_BIT( TIMx->CCER,  TIM_CCER_CC2E );
+	//  	MODIFY_REG( TIMx->CCMR1, TIM_CCMR1_CC2S | TIM_CCMR1_IC2F, TIM_CCMR1_CC2S_0 );
+	//  	SET_BIT(   TIMx->CCER,  TIM_CCER_CC2P | TIM_CCER_CC2E );
+
+	// 	/* Select the Trigger source */
+	// 	MODIFY_REG( TIMx->SMCR, TIM_SMCR_TS, TIM_SMCR_TS_2 | TIM_SMCR_TS_1 );	//	TIM_TIxExternalCLK1Source_TI2
+	// 	/* Select the External clock mode1 */
+	// 	SET_BIT( TIMx->SMCR, TIM_SMCR_SMS );	//	TIM_SlaveMode_External1
 }
+//}
 
 /**
  *	访问 PWM (TIM2)
@@ -565,15 +573,15 @@ static	void	TIM2_Configure( void )
 	SET_BIT( RCC->APB1ENR, RCC_APB1ENR_TIM2EN );
 
 	//	时基初始化: 输入时钟频率2.4MHz
-	TIMx->CR1  = 0u;
-	TIMx->PSC  = 0u;
-	TIMx->ARR  = TIM2_OutputMax	- 1u;
-	TIMx->EGR  = TIM_EGR_UG;
-	TIMx->CR1  = TIM_CR1_CEN;
+	TIMx->CR1	= 0u;
+	TIMx->PSC	= 0u;
+	TIMx->ARR	= TIM2_OutputMax	- 1u;
+	TIMx->EGR	= TIM_EGR_UG;
+	TIMx->CR1	= TIM_CR1_CEN;
 
 	//	输出配置
 	TIMx->CCMR1 = TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1;
-	TIMx->CCER  = TIM_CCER_CC1E;
+	TIMx->CCER	= TIM_CCER_CC1E;
 
 	//	配置端口
 	SET_BIT( RCC->APB2ENR, RCC_APB2ENR_IOPAEN );
@@ -586,18 +594,18 @@ static	void	TIM3_Configure( void )
 
 	SET_BIT( RCC->APB1ENR, RCC_APB1ENR_TIM3EN );
 	//	时基初始化: 输入时钟频率2.4MHz
-	TIMx->CR1  = 0u;
-	TIMx->PSC  = 0u;
-	TIMx->ARR  = TIM3_OutputMax	- 1u;
-	TIMx->EGR  = TIM_EGR_UG;
-	TIMx->CR1  = TIM_CR1_CEN;
+	TIMx->CR1	= 0u;
+	TIMx->PSC	= 0u;
+	TIMx->ARR	= TIM3_OutputMax	- 1u;
+	TIMx->EGR	= TIM_EGR_UG;
+	TIMx->CR1	= TIM_CR1_CEN;
 
 	//	输出配置
 	TIMx->CCMR1 = TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1
 				| TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1;
 	TIMx->CCMR2 = TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1
 				| TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1;
-	TIMx->CCER  = TIM_CCER_CC1E | TIM_CCER_CC1P
+	TIMx->CCER	= TIM_CCER_CC1E | TIM_CCER_CC1P
 				| TIM_CCER_CC2E | TIM_CCER_CC2P |
 								TIM_CCER_CC3E | TIM_CCER_CC3P
 				| TIM_CCER_CC4E | TIM_CCER_CC4P;
@@ -615,29 +623,29 @@ void	TIM15_Configure( void )
 
 	SET_BIT( RCC->APB2ENR, RCC_APB2ENR_TIM15EN );
 	//	时基初始化: 输入时钟频率1KHz
-	TIMx->CR1  = 0u;
-	TIMx->PSC  = 24000 - 1u;//恒温箱温度控制 频率放低
-	TIMx->ARR  = TIM15_OutputMax	- 1u;	//	999u;
-	TIMx->EGR  = TIM_EGR_UG;
-	TIMx->CR1  = TIM_CR1_CEN;
+	TIMx->CR1	= 0u;
+	TIMx->PSC	= 24000 - 1u;	//	恒温箱温度控制 频率放低
+	TIMx->ARR	= TIM15_OutputMax	- 1u;	//	999u;
+	TIMx->EGR	= TIM_EGR_UG;
+	TIMx->CR1	= TIM_CR1_CEN;
 
 	//	输出配置
 	TIMx->CCMR1 = TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1
 				| TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1;
-	TIMx->CCER  = TIM_CCER_CC1E// | TIM_CCER_CC1P
+	TIMx->CCER	= TIM_CCER_CC1E// | TIM_CCER_CC1P
 				| TIM_CCER_CC2E// | TIM_CCER_CC2P
 				;
 
 	//	配置端口
 	SET_BIT( RCC->APB2ENR, RCC_APB2ENR_AFIOEN );
-	SET_BIT( AFIO->MAPR2, AFIO_MAPR2_TIM15_REMAP );//              AFIO_MAPR_SWJ_CFG, AFIO_MAPR_SWJ_CFG_JTAGDISABLE );
+	SET_BIT( AFIO->MAPR2, AFIO_MAPR2_TIM15_REMAP );//							AFIO_MAPR_SWJ_CFG, AFIO_MAPR_SWJ_CFG_JTAGDISABLE );
 	SET_BIT( RCC->APB2ENR, RCC_APB2ENR_IOPBEN );
 	MODIFY_REG( GPIOB->CRH, 0xFF000000u, 0xBB000000u );
 	
 	SET_BIT( TIMx->BDTR, TIM_BDTR_MOE );
 }
 
-void	MotorPWM_SetOutput( uint16_t OutValue )  //TSP
+void	MotorPWM_SetOutput( uint16_t OutValue )	//TSP
 {
 	TIM2->CCR1 = (uint32_t)OutValue * TIM2_OutputMax / 27648u;
 }
@@ -662,6 +670,18 @@ void	PWM4_SetOutput( uint16_t OutValue )//D
 	TIM3->CCR2 = (uint32_t)OutValue * TIM3_OutputMax / 27648u;
 }
 
+void	HCBoxHeat_OutCmd( uint16_t OutValue )			//	PB14(高电平有效)
+{	//	PB.14
+	TIM15->CCR1 = (uint32_t)OutValue;
+}
+
+
+void	HCBoxCool_OutCmd( uint16_t OutValue )		//	PB15(高电平有效)
+{	//	PB.15
+	TIM15->CCR2 = (uint32_t)OutValue;
+}
+
+
 /**
  *	访问 GPIO
  */
@@ -674,26 +694,26 @@ void	MB_485_Direct_Transmit( void )
 
 void	MB_485_Direct_Receive( void )
 {
-//	GPIOB->BRR  = ( 1 << 2 );
+//	GPIOB->BRR	= ( 1 << 2 );
 }
 
 void	Select7705( uint8_t C_SEL )
 {
-    //	Port Configure
-    SET_BIT ( RCC->APB2ENR, RCC_APB2ENR_IOPBEN );
-    MODIFY_REG ( GPIOB->CRH, 0x000FFFFFu, 0x00033333u );
+	//	Port Configure
+	SET_BIT ( RCC->APB2ENR, RCC_APB2ENR_IOPBEN );
+	MODIFY_REG ( GPIOB->CRH, 0x000FFFFFu, 0x00033333u );
 
-    switch ( C_SEL )
-    {
-    case CS7705_1:   	GPIOB->BSRR = (GPIO_BSRR_BR8)| GPIO_BSRR_BS11 | GPIO_BSRR_BS12 | GPIO_BSRR_BS9 | GPIO_BSRR_BS10;	  break;	//	对应位复位		粉尘
-    case CS7705_2:    GPIOB->BSRR =  GPIO_BSRR_BS8 |(GPIO_BSRR_BR11)| GPIO_BSRR_BS12 | GPIO_BSRR_BS9 | GPIO_BSRR_BS10;	  break;	//	对应位复位		日均A
-    case CS7705_3:    GPIOB->BSRR =  GPIO_BSRR_BS8 | GPIO_BSRR_BS11 |(GPIO_BSRR_BR12)| GPIO_BSRR_BS9 | GPIO_BSRR_BS10;		break;	//	对应位复位		日均B
-    case CS7705_4:    GPIOB->BSRR =  GPIO_BSRR_BS8 | GPIO_BSRR_BS11 | GPIO_BSRR_BS12 |(GPIO_BSRR_BR9)| GPIO_BSRR_BS10;		break;	//	对应位复位		时均C	
-    case CS7705_5:    GPIOB->BSRR =  GPIO_BSRR_BS8 | GPIO_BSRR_BS11 | GPIO_BSRR_BS12 | GPIO_BSRR_BS9 |(GPIO_BSRR_BR10);		break;	//	对应位复位		时均D
-	//case CS7705_all:	GPIOA->BSRR = (GPIO_BSRR_BR2)|(GPIO_BSRR_BR3)|(GPIO_BSRR_BR4);	break;	//	全部复位
-    default:
-    case CS7705_none: GPIOB->BSRR = GPIO_BSRR_BS8| GPIO_BSRR_BS9 | GPIO_BSRR_BS10| GPIO_BSRR_BS11 | GPIO_BSRR_BS12;	break;	//	全部置位
-    }
+	switch ( C_SEL )
+	{
+	case CS7705_1:	GPIOB->BSRR =(GPIO_BSRR_BR8)| GPIO_BSRR_BS12 | GPIO_BSRR_BS11 | GPIO_BSRR_BS9 | GPIO_BSRR_BS10;		break;	//	对应位复位		粉尘
+	case CS7705_2:	GPIOB->BSRR =	GPIO_BSRR_BS8 |(GPIO_BSRR_BR12)| GPIO_BSRR_BS11 | GPIO_BSRR_BS9 | GPIO_BSRR_BS10;		break;	//	对应位复位		日均A
+	case CS7705_3:	GPIOB->BSRR =	GPIO_BSRR_BS8 | GPIO_BSRR_BS12 |(GPIO_BSRR_BR11)| GPIO_BSRR_BS9 | GPIO_BSRR_BS10;		break;	//	对应位复位		日均B
+	case CS7705_4:	GPIOB->BSRR =	GPIO_BSRR_BS8 | GPIO_BSRR_BS12 | GPIO_BSRR_BS11 |(GPIO_BSRR_BR9)| GPIO_BSRR_BS10;		break;	//	对应位复位		时均C	
+	case CS7705_5:	GPIOB->BSRR =	GPIO_BSRR_BS8 | GPIO_BSRR_BS12 | GPIO_BSRR_BS11 | GPIO_BSRR_BS9 |(GPIO_BSRR_BR10);		break;	//	对应位复位		时均D
+//case CS7705_all:	GPIOA->BSRR = (GPIO_BSRR_BR2)|(GPIO_BSRR_BR3)|(GPIO_BSRR_BR4);	break;	//	全部复位
+	default:
+	case CS7705_none: GPIOB->BSRR = GPIO_BSRR_BS8| GPIO_BSRR_BS9 | GPIO_BSRR_BS10| GPIO_BSRR_BS11 | GPIO_BSRR_BS12;	break;	//	全部置位
+	}
 }	
 
 void	Fan1_OutCmd( bool NewState )		//	PA1(高电平有效)A 电源
@@ -723,18 +743,6 @@ void	PowerAIR_OutCmd( bool	NewState )		//	PC15(高电平有效)
 	MODIFY_REG( GPIOC->CRH, 0xF0000000u, 0x30000000u );
 }
 
-void	HCBoxHeat_OutCmd( uint16_t OutValue )			//	PB14(高电平有效)
-{	//	PB.14
-	TIM15->CCR1 = (uint32_t)OutValue;
-}
-
-
-void	HCBoxCool_OutCmd( uint16_t OutValue )		//	PB15(高电平有效)
-{	//	PB.15
-	TIM15->CCR2 = (uint32_t)OutValue;
-}
-
-
 void	HCBoxFan_OutCmd( BOOL NewState )		//	PA3(高电平有效)
 {	//	PA.3, on-off mode
 	SET_BIT( RCC->APB2ENR, RCC_APB2ENR_IOPAEN );
@@ -743,7 +751,7 @@ void	HCBoxFan_OutCmd( BOOL NewState )		//	PA3(高电平有效)
 }
 
 
-void	MotorPower_OutCmd( bool NewState )	//	PC14(高电平有效)   //TSP
+void	MotorPower_OutCmd( bool NewState )	//	PC14(高电平有效)	 //TSP
 {//	PC.14
 	SET_BIT( RCC->APB2ENR, RCC_APB2ENR_IOPCEN );
 	GPIOC->BSRR = ( NewState ? GPIO_BSRR_BS14 : GPIO_BSRR_BR14 );
@@ -755,10 +763,9 @@ void	MotorPower_OutCmd( bool NewState )	//	PC14(高电平有效)   //TSP
 *	当通讯失效时，延时一段时间后，自动关闭电机控制输出。
 *********************************** 设计说明 ***********************************/
 static	uint32_t m_tick;
-extern uint16_t volatile fan_shut_delay;
 void	MonitorTickReset( void )
 {
-    m_tick = 0u;
+		m_tick = 0u;
 }
 
 
@@ -772,8 +779,8 @@ bool	MonitorTickTimeout( void )
 
 void	MonitorTickInit( void )
 {
-    m_tick = 0u;
-	SysTick_Config( SystemCoreClock / 10 );	//	中断频率10Hz  //100ms
+	m_tick = 0u;
+	SysTick_Config( SystemCoreClock / 10 );	//	中断频率10Hz	//100ms
 }
 
 
@@ -781,8 +788,8 @@ uint8_t HCBoxFlag = FALSE;
 __irq
 void	SysTick_Handler( void )
 {	
-	static  uint32_t    HCBoxtick;
-	uint32_t    tmp = m_tick + 1;
+	static	uint32_t		HCBoxtick;
+	uint32_t		tmp = m_tick + 1;
 	
 	if ( ( tmp != 0u ) )	//	未溢出
 	{
@@ -805,29 +812,29 @@ __irq
 __asm	void	SVC_Handler (void)
 {
 	// 判断入口参数保存在哪个栈中，并取回入口参数
-	TST    	LR, #0x4 				;// 测试EXC_RETURN的第2位
-	ITE   	EQ                    	;
-	MRSEQ	R0, MSP  				;// 0: 使用主堆栈，故把MSP的值取出
+	TST			LR, #0x4 				;// 测试EXC_RETURN的第2位
+	ITE	 	EQ											;
+	MRSEQ	R0, MSP					;// 0: 使用主堆栈，故把MSP的值取出
 	MRSNE	R0, PSP 				;// 1: 使用进程栈，故把PSP的值取出
 
 // 	LDR		R1, [R0,#24] 			;// 从栈中读取PC的值
 // 	LDRB	R0, [R1,#-2]			;// 从SVC指令中读取立即数放到R0
-	LDM     R0, { R0-R3, R12 }      ;// 从栈中取得入口参数
+	LDM		 R0, { R0-R3, R12 }			;// 从栈中取得入口参数
 	
 	//	执行用户程序
 	PUSH	{ LR }
-	BLX     R12                     ; Call SVC Function 
+	BLX		 R12										 ; Call SVC Function 
 	POP		{ LR }
 
 	//	判断入口参数保存在哪个栈中，并回写返回值
-	TST     LR, #2					;// 测试EXC_RETURN的第2位
-	ITE   	EQ                    	;
-	MRSEQ   R12, MSP                ;// 0: 使用主堆栈(MSP)
-	MRSNE   R12, PSP                ;// 1: 使用进程栈(PSP)
-	STM     R12,{ R0-R3 }			;// 回写函数返回值
+	TST		 LR, #2					;// 测试EXC_RETURN的第2位
+	ITE	 	EQ											;
+	MRSEQ	 R12, MSP								;// 0: 使用主堆栈(MSP)
+	MRSNE	 R12, PSP								;// 1: 使用进程栈(PSP)
+	STM		 R12,{ R0-R3 }			;// 回写函数返回值
 
 	//	中断返回
-	BX      LR
+	BX			LR
 }
 
 
@@ -847,4 +854,4 @@ void	BIOS_Init( void )
 	MonitorTickInit();	//	泵保护
 }
 
-/********  (C) COPYRIGHT 2015 青岛金仕达电子科技有限公司  **** End Of File ****/
+/********	(C) COPYRIGHT 2015 青岛金仕达电子科技有限公司	**** End Of File ****/
