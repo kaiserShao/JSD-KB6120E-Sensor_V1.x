@@ -795,7 +795,7 @@ void	SysTick_Handler( void )
 	{
 		m_tick = tmp;
 	}
-	if( ( HCBoxtick ++ ) % 10 == 0 )
+	if( ( ++ HCBoxtick ) % 10 == 0 )
 	{
 		HCBoxFlag = TRUE;
 	}

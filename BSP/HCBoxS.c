@@ -84,12 +84,11 @@ void	HCBoxFan_Update( void )
 	{
 		fanCountList_index = 0u;
 	}
-
 	//	风扇开关单稳态控制
-	if ( --fan_shut_delay == 0u )
-	{
+	if ( fan_shut_delay > 0u )
+		fan_shut_delay --;
+	else
 		HCBoxFan_OutCmd( FALSE );
-	}
 }
 
 
@@ -127,7 +126,7 @@ uint16_t	get_HCBoxFanSpeed( void )
 
 void	HCBox_Output( FP32 OutValue )
 {
-	static	uint16_t	HCBoxOutValue;
+	static	volatile	uint16_t	HCBoxOutValue = 0;
 	//	更新输出状态
 	HCBox.OutValue = OutValue * 1000 + 1000;
 	
@@ -140,12 +139,10 @@ void	HCBox_Output( FP32 OutValue )
 		if      ( HCBoxOutValue > 990 )
 		{
 			HCBoxCool_OutCmd( 1000 );
-			//	delay( 1000u );
 		}
 		else if ( HCBoxOutValue < 10  )
 		{
 			HCBoxCool_OutCmd( 0 );
-			//	delay( 1000u );
 		}
 		else
 		{	
@@ -160,13 +157,10 @@ void	HCBox_Output( FP32 OutValue )
 		if      ( HCBoxOutValue >  990 )
 		{
 			
-			HCBoxHeat_OutCmd( 1000 );
-			//	delay( 1000u );
-		}
+			HCBoxHeat_OutCmd( 1000 );		}
 		else if ( HCBoxOutValue < 10 )
 		{                                                
 			HCBoxHeat_OutCmd( 0 );
-			//	delay( 1000u );
 		}
 		else
 		{
@@ -179,8 +173,6 @@ void	HCBox_Output( FP32 OutValue )
 		HCBoxHeat_OutCmd( 0 );
 		//	关闭制冷
 		HCBoxCool_OutCmd( 0 );
-
-		//	delay( 1000u );
 	}
 
 	HCBoxFan_Update();			//	测量风扇转速
@@ -191,80 +183,25 @@ void	HCBox_Output( FP32 OutValue )
 *	加热器恒温箱共用一个温度信号，两者不能同时使用。
 *******************************************************************************/
 extern	uint16_t	iRetry;
-uint16_t HCBoxOutValue;
 void	HCBoxTemp_Update( void )
 {
 	if ( iRetry >= 30 )
-	{
 		HCBox_Output( 0.0f );	//	注意与等待状态的输出保持一致
-	}
+	set_HCBoxTemp( usRegHoldingBuf[5] * 0.0625f, usRegHoldingBuf[6] );
 	HCBox.RunTemp = get_HCBoxTemp();
-	set_HCBoxTemp( usRegHoldingBuf[5] * 0.0625f, usRegHoldingBuf[6] );	
 }
-
-
 
 /********************************** 功能说明 ***********************************
 *  等待状态，禁止加热、制冷
 *******************************************************************************/
 volatile	BOOL	EN_Cool = TRUE;
 volatile	BOOL	EN_Heat = TRUE;
+BOOL ControlFlag = FALSE;
 static	void	HCBox_Wait( void )
 {
-	static uint16_t Shut_DelayHeat = 0;
-	static uint16_t Shut_DelayCool = 0;
 	//	设置自动模式即无法确定实际工作模式可暂时进入等待状态
-	if ( MD_Shut == HCBox.SetMode )
-	{
-		set_HCBoxTemp( usRegHoldingBuf[5] * 0.0625f, usRegHoldingBuf[6] );	
-	}
-	HCBox_Output( 0.0f );	//	等待状态输出
 	HCBoxTemp_Update();
-	if( MD_Auto == HCBox.SetMode )
-	{
-		if( ( EN_Heat == FALSE ) && ( EN_Cool == FALSE ) )		
-		{
-			if( HCBox.RunTemp > HCBox.SetTemp )
-			{
-				EN_Heat = FALSE; 
-				EN_Cool = TRUE;
-			}
-			else
-			{
-				EN_Heat = TRUE;
-				EN_Cool = FALSE;
-			}
-		}
-		
-		if( ( ( HCBox.RunTemp - HCBox.SetTemp ) >=  2 ) && ( EN_Heat == TRUE ) )
-			Shut_DelayHeat ++;
-		if( ( HCBox.RunTemp - HCBox.SetTemp ) <   2 )
-			Shut_DelayHeat = 0;
-		if( ( ( HCBox.RunTemp - HCBox.SetTemp ) <= -2 ) && ( EN_Cool == TRUE ) )
-			Shut_DelayCool ++;
-		if( ( HCBox.RunTemp - HCBox.SetTemp ) >  -2 )
-			Shut_DelayCool = 0;
-			
-		if( Shut_DelayHeat >= 60 * 1 )
-		{
-			Shut_DelayHeat = 
-			Shut_DelayCool = 0;
-			EN_Heat = FALSE;
-			EN_Cool = TRUE;
-		}
-		else if( EN_Heat == FALSE )
-			Shut_DelayHeat = 0;	
-			
-		if ( Shut_DelayCool >= 60 * 1 )
-		{
-			Shut_DelayHeat = 
-			Shut_DelayCool = 0;
-			EN_Heat = TRUE;
-			EN_Cool = FALSE;
-		}
-		else if( EN_Cool == FALSE )
-			Shut_DelayCool = 0;
-	}
+	HCBox_Output( 0.0f );	//	等待状态输出
 }
 
 
@@ -275,9 +212,9 @@ static	void	HCBox_Wait( void )
 
 static	void	HCBox_Heat( void )  
 {
-	const	FP32	Kp = 0.0390625f;			//  5/128
-	const	FP32	Ki = ( Kp / 320.0f );	//	160.0f 
-	const	FP32	Kd = ( Kp *  3.0f );	//	80.0f
+	const	FP32	Kp = 0.0390625f*2;			//  5/128
+	const	FP32	Ki = ( Kp / 10.0f );	//	160.0f 
+	const	FP32	Kd = ( Kp * 30.0f );	//	80.0f
 
 //	const	FP32	Kp = 0.2;
 //	const	FP32	Ki = ( Kp / 100.0f );
@@ -293,43 +230,25 @@ static	void	HCBox_Heat( void )
 		HCBoxTemp_Update();
 		//	计算PID输出，输出量值归一化到[0.0 至+1.0]范围
 		TempRun = HCBox.RunTemp;
-		TempSet = HCBox.SetTemp;
+		TempSet = HCBox.SetTemp - 2;
 		Ek_1 = Ek;
 		Ek = ( TempSet - TempRun );
 		Up = Kp * Ek;
 		Ui += Ki * Ek;
-		if ( Ui < -0.5f ){  Ui = -0.5f; }
-		if ( Ui > +0.5f ){  Ui = +0.5f; }
+		if ( Ui < -0.3f ){  Ui = -0.3f; }
+		if ( Ui > +0.3f ){  Ui = +0.3f; }//0.25
 		Ud = ( Ud * 0.8f ) + (( Kd * ( Ek - Ek_1 )) * 0.2f );
 		Upid = ( Up + Ui + Ud );
 		if ( Upid <  0.0f ){  Upid = 0.0f; }
 		if ( Upid > +1.0f ){  Upid = 1.0f; }
 
-		HCBox_Output( Upid );	//	加热状态输出（隐含循环定时功能）
-
-		switch ( HCBox.SetMode )
+		if( ( HCBox.RunTemp - HCBox.SetTemp ) > 0 ) 
 		{
-		case MD_Auto:
-// 			//	如果温度偏差超过2'C且维持一段时间（30min）, 切换工作方式
-// 			if ( Ek < +1.5f )
-// 			{
-// 				shutcount_Heat = 0u;
-// 			}
-// 			else if ( shutcount_Heat < ( 60u * 1u ))//30
-// 			{
-// 				++shutcount_Heat;
-// 			}
-// 			else
-// 			{
-// 				EN_Heat = FALSE;
-// 				EN_Cool = TRUE;
-// 			}
-			break;
-		case MD_Heat:	EN_Heat = TRUE; 	break;
-		case MD_Cool:	EN_Heat = FALSE;	break;
-		default:
-		case MD_Shut:	EN_Heat = FALSE;	break;
-		}
+			ControlFlag = FALSE;
+			Upid = 0.0f;
+		}		
+		
+		HCBox_Output( Upid );	//	加热状态输出（隐含循环定时功能）
 	}
 }
 /********************************** 功能说明 ***********************************
@@ -338,121 +257,115 @@ static	void	HCBox_Heat( void )
 
 static	void	HCBox_Cool( void )
 {
-	const	FP32	Kp = 0.1171875f;			//	15 / 128
-	const	FP32	Ki = ( Kp / 320.0f );		//	240.0f 
-	const	FP32	Kd = ( Kp *  3.0f );	//	80.0f
+	const	FP32	Kp = 0.1171875f*2;			//	15 / 128
+	const	FP32	Ki = ( Kp / 10.0f );		//	240.0f
+	const	FP32	Kd = ( Kp * 3.0f );	//	80.0f
 	static FP32	Ek_1, Ek = 0.0f;
 	static FP32	Up = 0.0f, Ui = 0.0f, Ud = 0.0f;
 	static FP32	Upid = 0.0f;
 	FP32	 TempRun, TempSet;
+	
+  HCBoxTemp_Update();		//	实时读取温度;  if ( 失败 ) 转入待机状态
 
-
-    HCBoxTemp_Update();		//	实时读取温度;  if ( 失败 ) 转入待机状态
-    
-    //	计算PID输出，输出量值归一化到[-1.0至 0.0]范围
-    TempRun = HCBox.RunTemp;
-    TempSet = HCBox.SetTemp;
-    Ek_1 = Ek;
-    Ek = ( TempSet - TempRun );
-
+	//	计算PID输出，输出量值归一化到[-1.0至 0.0]范围
 	if( EN_Cool )
 	{
 		HCBoxTemp_Update();		//	实时读取温度;  if ( 失败 ) 转入待机状态
 		//	计算PID输出，输出量值归一化到[-1.0至 0.0]范围
 		TempRun = HCBox.RunTemp;
-		TempSet = HCBox.SetTemp;
+		TempSet = HCBox.SetTemp + 1;
 		Ek_1 = Ek;
 		Ek  = ( TempSet - TempRun );
 		Up  = Kp * Ek;
 		Ui += Ki * Ek;
-		if ( Ui < -0.50f ){  Ui = -0.50f; }
-		if ( Ui > +0.50f ){  Ui = +0.50f; }	//	0.5
-		Ud =( Ud * 0.8f ) + (( Kd * ( Ek - Ek_1 )) * 0.2f ); //Kd * ( Ek - Ek_1 );
+		if ( Ui < -0.60f ){  Ui = -0.60f; }
+		if ( Ui > +0.60f ){  Ui = +0.60f; }	//	0.5
+		Ud =( Ud * 0.8f ) + (( Kd * ( Ek - Ek_1 )) * 0.2f); 
 		Upid = Up + Ui + Ud;
 		if ( Upid >  0.0f ){  Upid =  0.0f; }
 		if ( Upid < -1.0f ){  Upid = -1.0f; }
 
+		if( ( HCBox.RunTemp - HCBox.SetTemp ) < 0 ) 
+		{
+			ControlFlag = FALSE;
+			Upid = 0.0f;
+		}
+
 		//	风扇输出控制（制冷方式下开启风扇，暂不调速－2014年1月15日）
 		if ( Upid < 0.0f )
 		{
-			fan_shut_delay = 30u;
+			fan_shut_delay = 60u;
 			HCBoxFan_OutCmd( TRUE );
 		}
-		
 		//	输出
-//         if ( FanSpeed_fetch() < 100u )
-//         {	//	风扇不转，禁止制冷片工作
-//             HCBox_Output( 0.0f );	//	注意与等待状态的输出保持一致
-//         }
-//         else
+// 		if ( FanSpeed_fetch() < 100u )
+// 		{	//	风扇不转，禁止制冷片工作
+// 				HCBox_Output( 0.0f );	//	注意与等待状态的输出保持一致
+// 		}
+// 		else
 		{
 			HCBox_Output( Upid );	//	制冷状态输出（隐含循环定时功能）
 		}
-
-		switch ( HCBox.SetMode )
-		{
-		case MD_Auto:
-// 			//	如果温度偏差超过2'C且维持一段时间（30min）, 切换工作方式
-// 			if ( Ek > -1.5f )
-// 			{
-// 				shutcount_Cool = 0u;
-// 			}
-// 			else if ( shutcount_Cool < ( 60u * 1 ))//30u
-// 			{
-// 				++shutcount_Cool;
-// 			}
-// 			else
-// 			{
-// 				EN_Cool = FALSE;
-// 				EN_Heat = TRUE;
-// 			}
-			break;
-		case MD_Cool:	EN_Cool = TRUE; 	break;
-		case MD_Heat:	EN_Cool = FALSE;	break;
-		default:
-		case MD_Shut:	EN_Cool = FALSE;	break;
-		}
-
 	}
+
 }
 
 
-
-
+#include "math.h"
 /********************************** 功能说明 ***********************************
 *	恒温箱温度控制
 *******************************************************************************/
+static	uint32_t HCBoxCount = 0;
+
 void	HCBoxControl( void )
-{
-    
+{   
+	FP32	EK = HCBox.RunTemp - HCBox.SetTemp;
+	
 	if( HCBoxFlag )
 	{
 		HCBoxFlag = FALSE;
-		HCBox_Wait();	//	dummy read, skip 0x0550
-		switch ( HCBox.SetMode )
-		{
-		case MD_Auto:
-			if      (( HCBox.SetTemp + 1 < HCBox.RunTemp ) && EN_Cool )
-			{
-				HCBox_Cool();
-			}
-			else if (( HCBox.SetTemp - 1 > HCBox.RunTemp ) && EN_Heat )
-			{
-				HCBox_Heat();
-			}
-// 			else
-// 			{	//	设置自动模式即无法确定实际工作模式可暂时进入等待状态
-// 				HCBox_Wait();
-// 			}
-			break;
-		case MD_Cool:	EN_Cool = TRUE; EN_Heat = FALSE;	HCBox_Cool();	break;
-		case MD_Heat:	EN_Heat = TRUE; EN_Cool = FALSE;	HCBox_Heat();	break;
-		default:
-		case MD_Shut:	EN_Heat = EN_Cool = FALSE;				HCBox_Wait();	break;
-									
-		}
-	}
+		HCBox_Wait();
 		
+		if( !ControlFlag )
+		{
+			EN_Cool = FALSE;
+			EN_Heat = FALSE;
+			if( fabs( EK ) > 2 )
+				HCBoxCount ++;
+			else
+				HCBoxCount = 0;
+		}
+		else
+		{	
+			HCBoxCount = 0;
+			if( EK >  2 )
+			{
+				EN_Cool = TRUE;
+				EN_Heat = FALSE;
+			}		
+			if( EK < -2 )
+			{
+				EN_Cool = FALSE;
+				EN_Heat = TRUE;
+			}		
+			switch ( HCBox.SetMode )
+			{
+			case MD_Auto:
+				if( EN_Cool )
+					HCBox_Cool();
+				if( EN_Heat )
+					HCBox_Heat();
+				break;
+			case MD_Cool:	EN_Cool = TRUE; EN_Heat = FALSE;	HCBox_Cool();	break;
+			case MD_Heat:	EN_Heat = TRUE; EN_Cool = FALSE;	HCBox_Heat();	break;
+			default:
+			case MD_Shut:	EN_Heat = EN_Cool = FALSE;				HCBox_Wait();	break;							
+			}			
+		}
+		
+		if( HCBoxCount >= 60 * 30 )
+			ControlFlag = TRUE;
+	}	
 }
 
 
@@ -468,7 +381,20 @@ void	HCBoxControl( void )
 
 
 
-
+// 			//	如果温度偏差超过2'C且维持一段时间（30min）, 切换工作方式
+// 			if ( Ek > -1.5f )
+// 			{
+// 				shutcount_Cool = 0u;
+// 			}
+// 			else if ( shutcount_Cool < ( 60u * 1 ))//30u
+// 			{
+// 				++shutcount_Cool;
+// 			}
+// 			else
+// 			{
+// 				EN_Cool = FALSE;
+// 				EN_Heat = TRUE;
+// 			}
 
 
 
